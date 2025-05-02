@@ -1,11 +1,23 @@
-const express = require("express");
-const app = express();
 require("dotenv").config();
 
-app.get("/hello", (req, res) => {
-  res.send("hello World baby ");
-});
+const express = require("express");
+const app = express();
+app.use(express.json());
+const cookieParser = require("cookie-parser");
 
-app.listen(process.env.PORT, () => {
-  console.log("Server started running :) at :" + process.env.PORT);
+const { connectDB } = require("./config/database");
+const authRouter = require("./routes/userAuth")
+
+app.use("/",authRouter)
+
+connectDB()
+.then(async () => {
+  try {
+    app.listen(process.env.PORT, () => {
+      console.log("Server is listening at port : " + process.env.PORT);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
