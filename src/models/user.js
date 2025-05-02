@@ -45,7 +45,7 @@ const userSchema = mongoose.Schema(
     },
     about: {
       type: String,
-      default: "This is default about section of User",
+      default: "User is Learning at Leetcode Platform",
     },
     password: {
       type: String,
