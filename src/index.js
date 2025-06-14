@@ -1,23 +1,40 @@
-require("dotenv").config();
-
-const express = require("express");
+const express = require('express')
 const app = express();
+require('dotenv').config();
+const main =  require('./config/db')
+const cookieParser =  require('cookie-parser');
+
+
 app.use(express.json());
-const cookieParser = require("cookie-parser");
+app.use(cookieParser());
 
-const { connectDB } = require("./config/database");
-const authRouter = require("./routes/userAuth")
+//redisClient
+const redisClient = require('./config/redis');
 
-app.use("/",authRouter)
+//Routers
+const authRouter = require("./routes/userAuth");
+const problemRouter = require("./routes/problemCreator");
+const submitRouter = require("./routes/submit")
 
-connectDB()
-.then(async () => {
-  try {
-    app.listen(process.env.PORT, () => {
-      console.log("Server is listening at port : " + process.env.PORT);
-    });
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ message: "Internal Server Error" });
-  }
-});
+app.use('/user',authRouter);
+app.use('/problem',problemRouter);
+app.use('/submission',submitRouter);
+
+
+const InitalizeConnection = async ()=>{
+    try{
+        await Promise.all([main(),redisClient.connect()]); // main and redisClient function will run together in sequence 
+        console.log("DB Connected");
+        
+        app.listen(process.env.PORT, ()=>{
+            console.log("Server listening at port number: "+ process.env.PORT);
+        })
+    }
+    catch(err){
+        console.log("Error: "+err);
+    }
+}
+//initialising the connection with the database and the redisClient --> listening to the server 
+
+InitalizeConnection();
+
