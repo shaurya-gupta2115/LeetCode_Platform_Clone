@@ -5,6 +5,24 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Submission = require("../models/submission");
 
+
+const userInfo = async (req, res) => {
+  try {
+    const userId = req.result._id;
+    if (!userId) return res.status(400).send("User ID is Missing");
+
+    const user = await User.findById(userId).select(
+      "_id firstName emailId role problemSolved createdAt updatedAt"
+    );
+
+    if (!user) return res.status(404).send("User Not Found");
+
+    res.status(200).json(user); // ✅ Properly send user info back to frontend
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  }
+};
+
 const register = async (req, res) => {
   try {
     // validate the data;
@@ -88,8 +106,9 @@ const logout = async (req, res) => {
 const adminRegister = async (req, res) => {
   try {
     // validate the data;
-    //   if(req.result.role!='admin')
-    //     throw new Error("Invalid Credentials");
+      if(req.result.role !=='admin')
+        throw new Error("Invalid Credentials");
+
     validate(req.body);
     const { firstName, emailId, password } = req.body;
 
@@ -97,13 +116,13 @@ const adminRegister = async (req, res) => {
 
     const user = await User.create(req.body);
 
-    const token = jwt.sign(
-      { _id: user._id, emailId: emailId, role: user.role },
-      process.env.JWT_KEY,
-      { expiresIn: 60 * 60 }
-    );
+    // const token = jwt.sign(
+    //   { _id: user._id, emailId: emailId, role: user.role },
+    //   process.env.JWT_KEY,
+    //   { expiresIn: 60 * 60 }
+    // );
+    // res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
 
-    res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
     res.status(201).send("User Registered Successfully");
   } catch (err) {
     res.status(400).send("Error: " + err);
@@ -129,4 +148,10 @@ const deleteProfile = async (req, res) => {
   }
 };
 
-module.exports = { register, login, logout, adminRegister, deleteProfile };
+module.exports = {
+  userInfo,register,
+  login,
+  logout,
+  adminRegister,
+  deleteProfile,
+};

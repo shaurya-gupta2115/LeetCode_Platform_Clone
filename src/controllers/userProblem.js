@@ -126,7 +126,7 @@ const updateProblem = async (req, res) => {
 
     const newProblem = await Problem.findByIdAndUpdate(
       id,
-      { $set: { ...req.body } }, //object spread operator json -> object me convert krega and that converted object is then updated in the database --> direct bhi ...req.body likh skte the
+      { $set: { ...req.body } }, //o bject spread operator json -> object me convert krega and that converted object is then updated in the database --> direct bhi ...req.body likh skte the
       { runValidators: true, new: true }
     );
 
