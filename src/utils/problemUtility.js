@@ -23,7 +23,7 @@ const submitBatch = async (submissions) => {
       "Content-Type": "application/json",
     },
     data: {
-      submissions, 
+      submissions,
     },
   };
 
@@ -38,10 +38,10 @@ const submitBatch = async (submissions) => {
 
   return await fetchData();
 };
-// what we didi till is that we have done a batch submission and in return it gives us array of tokens for each input result which 
+
+// what we didi till is that we have done a batch submission and in return it gives us array of tokens for each input result which
 // we need to send again to judge0 api to get the result of each submission
 // aur jo token aenge wo ", " se separate hoke bhejenge judge0 api ko
-
 
 const waiting = async (timer) => {
   setTimeout(() => {
@@ -56,7 +56,7 @@ const submitToken = async (resultToken) => {
     method: "GET",
     url: "https://judge0-ce.p.rapidapi.com/submissions/batch",
     params: {
-      tokens: resultToken.join(","),// jo resultToken array hai usko join karke string me convert krdo
+      tokens: resultToken.join(","), // jo resultToken array hai usko join karke string me convert krdo
       base64_encoded: "false",
       fields: "*",
     },
@@ -90,4 +90,3 @@ const submitToken = async (resultToken) => {
 
 module.exports = { getLanguageById, submitBatch, submitToken };
 
-//

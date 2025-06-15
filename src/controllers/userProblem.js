@@ -1,3 +1,7 @@
+const express = require("express");
+const app = express();
+app.use(express.json());
+
 const {
   getLanguageById,
   submitBatch,
@@ -9,7 +13,7 @@ const Submission = require("../models/submission");
 
 const createProblem = async (req, res) => {
   const {
-    title, 
+    title,
     description,
     difficulty,
     tags,
@@ -20,26 +24,30 @@ const createProblem = async (req, res) => {
     problemCreator,
   } = req.body;
 
-  try {
-    // referenace solution is an array of objects to hum use traverse karenge and uske according hr language and uska code ke upr loop hoga for ke through 
-    for (const { language, completeCode } of referenceSolution) {
 
+  try {
+    
+    // referenace solution is an array of objects to hum use traverse karenge and uske according hr language and uska code ke upr loop hoga for ke through
+    for (const { language, completeCode } of referenceSolution) {
       // jo bhi instant language hai uska id lena hai
       const languageId = getLanguageById(language);
-
+      
+      console.log("referenceSolution ===>", referenceSolution);
+      console.log("visibleTestCases ===>", visibleTestCases);
+      console.log("getLanguageById(language) ===>", getLanguageById(language));
       // Instead giving single single test cases, i am creating Batch submission
       const submissions = visibleTestCases.map((testcase) => ({
         // ye visible hr ek testcase ko uthaenge and process krega
-        language_id: languageId, // c++ hai 
-        source_code: completeCode, // c++ ka code hai 
-        stdin: testcase.input, // single input daal diya 
-        expected_output: testcase.output,  // single output daal diya
+        language_id: languageId, // c++ hai
+        source_code: completeCode, // c++ ka code hai
+        stdin: testcase.input, // single input daal diya
+        expected_output: testcase.output, // single output daal diya
       }));
 
       const submitResult = await submitBatch(submissions);
       // console.log(submitResult);
 
-      //submitResult token ka array hai jo ki humne batch submission me bheja tha aur jo token aenge wo as an object aenge in the array 
+      //submitResult token ka array hai jo ki humne batch submission me bheja tha aur jo token aenge wo as an object aenge in the array
       const resultToken = submitResult.map((value) => value.token);
 
       // ["db54881d-bcf5-4c7b-a2e3-d33fe7e25de7","ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1","1b35ec3b-5776-48ef-b646-d5522bdeb2cc"]
@@ -139,7 +147,7 @@ const updateProblem = async (req, res) => {
 const deleteProblem = async (req, res) => {
   const { id } = req.params;
   try {
-    if (!id) return res.status(400).send("ID is Missing ") ;
+    if (!id) return res.status(400).send("ID is Missing ");
 
     const deletedProblem = await Problem.findByIdAndDelete(id);
 
@@ -220,5 +228,5 @@ module.exports = {
   getProblemById,
   getAllProblem,
   solvedAllProblembyUser,
-  submittedProblem
+  submittedProblem,
 };
