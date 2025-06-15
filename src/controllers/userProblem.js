@@ -24,17 +24,16 @@ const createProblem = async (req, res) => {
     problemCreator,
   } = req.body;
 
-
   try {
-    
     // referenace solution is an array of objects to hum use traverse karenge and uske according hr language and uska code ke upr loop hoga for ke through
     for (const { language, completeCode } of referenceSolution) {
       // jo bhi instant language hai uska id lena hai
       const languageId = getLanguageById(language);
-      
-      console.log("referenceSolution ===>", referenceSolution);
-      console.log("visibleTestCases ===>", visibleTestCases);
-      console.log("getLanguageById(language) ===>", getLanguageById(language));
+
+      // console.log("referenceSolution ===>", referenceSolution);
+      // console.log("visibleTestCases ===>", visibleTestCases);
+      // console.log("getLanguageById(language) ===>", getLanguageById(language));
+
       // Instead giving single single test cases, i am creating Batch submission
       const submissions = visibleTestCases.map((testcase) => ({
         // ye visible hr ek testcase ko uthaenge and process krega
@@ -48,7 +47,7 @@ const createProblem = async (req, res) => {
       // console.log(submitResult);
 
       //submitResult token ka array hai jo ki humne batch submission me bheja tha aur jo token aenge wo as an object aenge in the array
-      const resultToken = submitResult.map((value) => value.token);
+      const resultToken = submitResult.map((value) => value.token); // [{token: "token value"},{},{}] => [ token , token , token]
 
       // ["db54881d-bcf5-4c7b-a2e3-d33fe7e25de7","ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1","1b35ec3b-5776-48ef-b646-d5522bdeb2cc"]
       // resultToken ko hum fir se bhejenge judge0 api ko to get the result of each submission
@@ -101,11 +100,6 @@ const updateProblem = async (req, res) => {
     }
 
     for (const { language, completeCode } of referenceSolution) {
-      // source_code:
-      // language_id:
-      // stdin:
-      // expectedOutput:
-
       const languageId = getLanguageById(language);
 
       // I am creating Batch submission
@@ -119,7 +113,7 @@ const updateProblem = async (req, res) => {
       const submitResult = await submitBatch(submissions);
       // console.log(submitResult);
 
-      const resultToken = submitResult.map((value) => value.token);
+      const resultToken = submitResult.map((value) => value.token); // [{token: .....},{token: .....},{token: .....},{token: .....},]
 
       // ["db54881d-bcf5-4c7b-a2e3-d33fe7e25de7","ecc52a9b-ea80-4a00-ad50-4ab6cc3bb2a1","1b35ec3b-5776-48ef-b646-d5522bdeb2cc"]
       const testResult = await submitToken(resultToken);
@@ -134,10 +128,9 @@ const updateProblem = async (req, res) => {
 
     const newProblem = await Problem.findByIdAndUpdate(
       id,
-      { $set: { ...req.body } }, //o bject spread operator json -> object me convert krega and that converted object is then updated in the database --> direct bhi ...req.body likh skte the
-      { runValidators: true, new: true }
+      { $set: { ...req.body } }, //object spread operator json -> object me convert krega and that converted object is then updated in the database --> direct bhi ...req.body likh skte the
+      { runValidators: true, new: true } // jo bhi validators hote hai models me unhe bhi run karana haii to runValidators ko true krdo
     );
-
     res.status(200).send(newProblem);
   } catch (err) {
     res.status(500).send("Error: " + err);
@@ -165,7 +158,7 @@ const getProblemById = async (req, res) => {
     if (!id) return res.status(400).send("ID is Missing");
 
     const getProblem = await Problem.findById(id).select(
-      "_id title description difficulty tags visibleTestCases startCode referenceSolution "
+      "_id title description difficulty tags visibleTestCases startCodae"
     );
 
     if (!getProblem) return res.status(404).send("Problem is Missing");
@@ -183,13 +176,22 @@ const getAllProblem = async (req, res) => {
     );
 
     if (getProblem.length == 0)
-      return res.status(404).send("Problem is Missing");
+      return res.status(404).send("Problems are Missing");
 
-    res.status(200).send(getProblem);
+    res.status(200 ).send(getProblem);
   } catch (err) {
     res.status(500).send("Error: " + err);
   }
 };
+
+//Pagination implementation concept 
+
+// const page = 2;
+// const limit = 10;
+// const skip = (page - 1)*limit;   skip -> initial se kitni values hatanihai 
+// Problem.find().skip(skip).limit(limit)
+
+
 
 const solvedAllProblembyUser = async (req, res) => {
   try {

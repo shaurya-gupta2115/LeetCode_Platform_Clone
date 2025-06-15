@@ -34,7 +34,7 @@ const userSchema = new Schema({
     problemSolved:{
         type:[{
             type:Schema.Types.ObjectId,
-            ref:'problem'
+            ref:'Problem'
         }],
         unique:true
     },
@@ -53,6 +53,6 @@ userSchema.post('findOneAndDelete', async function (userInfo) {
 });
 
 
-const User = mongoose.model("user",userSchema);
+const User = mongoose.model("User",userSchema);
 
 module.exports = User;

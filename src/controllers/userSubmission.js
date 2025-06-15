@@ -52,7 +52,7 @@ const submitCode = async (req,res)=>{
     let testCasesPassed = 0;
     let runtime = 0;
     let memory = 0;
-    let status = 'accepted';
+    let status = 'pending';
     let errorMessage = null;
 
 
@@ -63,11 +63,11 @@ const submitCode = async (req,res)=>{
            memory = Math.max(memory,test.memory);
         }else{
           if(test.status_id==4){
-            status = 'error'
+            status = 'wrong'
             errorMessage = test.stderr
           }
           else{
-            status = 'wrong'
+            status = 'error'
             errorMessage = test.stderr
           }
         }

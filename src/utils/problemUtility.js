@@ -15,10 +15,10 @@ const submitBatch = async (submissions) => {
     method: "POST",
     url: "https://judge0-ce.p.rapidapi.com/submissions/batch",
     params: {
-      base64_encoded: "false",
+      base64_encoded: "false", //its like token which is generally encoded  and it expects that whatever the admin is sending it is also in encoded form - that's why we chose to select it as false
     },
     headers: {
-      "x-rapidapi-key": process.env.JUDGE0_KEY,
+      "x-rapidapi-key": process.env.JUDGE0_KEY, //remember that the key name in the .env file shoudl be JUDGE0_KEY only 
       "x-rapidapi-host": "judge0-ce.p.rapidapi.com",
       "Content-Type": "application/json",
     },

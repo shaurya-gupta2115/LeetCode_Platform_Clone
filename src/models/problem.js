@@ -78,13 +78,13 @@ const problemSchema = new Schema({
 
     problemCreator:{
         type: Schema.Types.ObjectId,
-        ref:'user',
+        ref:'User',
         required:true
     }
 })
 
 
-const Problem = mongoose.model('problem',problemSchema);
+const Problem = mongoose.model('Problem',problemSchema);
 
 module.exports = Problem;
 
