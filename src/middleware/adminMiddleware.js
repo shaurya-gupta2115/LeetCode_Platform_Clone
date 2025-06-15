@@ -20,7 +20,7 @@ const adminMiddleware = async (req,res,next)=>{
 
         const result = await User.findById(_id);
 
-        if(payload.role!='admin')
+        if(payload.role == "user")
             throw new Error("Invalid Token");
 
         if(!result){
@@ -31,10 +31,10 @@ const adminMiddleware = async (req,res,next)=>{
 
         const IsBlocked = await redisClient.exists(`token:${token}`);
 
-        if(IsBlocked)
-            throw new Error("Invalid Token");
+        if(IsBlocked) throw new Error("Invalid Token");
 
-        req.result = result;
+        req.result = payload;
+        req.user = result;
 
 
         next();

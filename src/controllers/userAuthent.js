@@ -5,7 +5,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Submission = require("../models/submission");
 
-
 const userInfo = async (req, res) => {
   try {
     const userId = req.result._id;
@@ -105,16 +104,18 @@ const logout = async (req, res) => {
 
 const adminRegister = async (req, res) => {
   try {
+    if (req.result.role !== "admin") throw new Error("Invalid Credentials - its role is not admin");
+    // console.log(req.result);
+    
     // validate the data;
-      if(req.result.role !=='admin')
-        throw new Error("Invalid Credentials");
-
     validate(req.body);
+
     const { firstName, emailId, password } = req.body;
 
     req.body.password = await bcrypt.hash(password, 10);
 
     const user = await User.create(req.body);
+    // const user = await User.create({ firstName, emailId, password, role });
 
     // const token = jwt.sign(
     //   { _id: user._id, emailId: emailId, role: user.role },
@@ -123,7 +124,7 @@ const adminRegister = async (req, res) => {
     // );
     // res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
 
-    res.status(201).send("User Registered Successfully");
+    res.status(201).send("User Registered Successfully by Admin");
   } catch (err) {
     res.status(400).send("Error: " + err);
   }
@@ -149,7 +150,8 @@ const deleteProfile = async (req, res) => {
 };
 
 module.exports = {
-  userInfo,register,
+  userInfo,
+  register,
   login,
   logout,
   adminRegister,
