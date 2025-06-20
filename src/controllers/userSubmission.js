@@ -17,7 +17,7 @@ const submitCode = async (req,res)=>{
 
     //    Fetch the problem from database
        const problem =  await Problem.findById(problemId);
-    //    testcases(Hidden)
+    //    testcases(Hidden) test krne ke liye 
 
     //   Kya apne submission store kar du pehle....
     const submittedResult = await Submission.create({
@@ -41,12 +41,11 @@ const submitCode = async (req,res)=>{
     }));
 
 
-    const submitResult = await submitBatch(submissions);
+    const submitResult = await submitBatch(submissions);// this will generate token for further processing 
     
-    const resultToken = submitResult.map((value)=> value.token);
+    const resultToken = submitResult.map((value)=> value.token);// the token individually getting extracted from object into array 
 
-    const testResult = await submitToken(resultToken);
-    
+    const testResult = await submitToken(resultToken); // these resultToken to sent to the api for getting the results and submitResult is the api function for further processing 
 
     // submittedResult ko update karo
     let testCasesPassed = 0;
@@ -58,6 +57,7 @@ const submitCode = async (req,res)=>{
 
     for(const test of testResult){
         if(test.status_id==3){
+          status = "accepted"
            testCasesPassed++;
            runtime = runtime+parseFloat(test.time)
            memory = Math.max(memory,test.memory);
@@ -87,7 +87,7 @@ const submitCode = async (req,res)=>{
     
     // req.result == user Information
 
-    if(!req.result.problemSolved.includes(problemId)){
+    if(!req.result.problemSolved.includes(problemId)){ // agar problem id nhi hai database me jo submit hui ho to save krdo 
       req.result.problemSolved.push(problemId);
       await req.result.save();
     }
@@ -116,11 +116,9 @@ const runCode = async(req,res)=>{
 
    //    Fetch the problem from database
       const problem =  await Problem.findById(problemId);
-   //    testcases(Hidden)
-
+   //    testcases(visible)
 
    //    Judge0 code ko submit karna hai
-
    const languageId = getLanguageById(language);
 
    const submissions = problem.visibleTestCases.map((testcase)=>({
@@ -136,10 +134,12 @@ const runCode = async(req,res)=>{
    const resultToken = submitResult.map((value)=> value.token);
 
    const testResult = await submitToken(resultToken);
-
-   
   
-   res.status(201).send(testResult);
+   //here we are cleaning the returned output 
+   const cleanedResult = testResult.map(({post_execution_filesystem,...rest}) => rest);
+
+  // res.status(201).send(testResult);
+  res.status(201).send(cleanedResult);
       
    }
    catch(err){

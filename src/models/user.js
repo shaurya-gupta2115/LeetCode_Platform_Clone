@@ -34,9 +34,9 @@ const userSchema = new Schema({
     problemSolved:{
         type:[{
             type:Schema.Types.ObjectId,
-            ref:'Problem'
+            ref:'Problem' // remember ki "problem" and "Problem" are different so we write whatever it is written in ("Problem", problemSchema)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
         }],
-        unique:true
+        unique:true                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
     },
     password:{
         type:String,
@@ -44,7 +44,7 @@ const userSchema = new Schema({
     }
 },{
     timestamps:true
-});
+})
 
 userSchema.post('findOneAndDelete', async function (userInfo) {
     if (userInfo) {

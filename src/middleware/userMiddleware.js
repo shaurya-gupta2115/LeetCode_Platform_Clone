@@ -30,9 +30,9 @@ const userMiddleware = async (req,res,next)=>{
         if(IsBlocked)
             throw new Error("Invalid Token");
 
-        req.result = result;
+        req.result = result; // we are sending all the information of the user from this userMiddleware
 
-        next();
+        next(); // this will make us to proceed to move in the next function / controller after executing this function of checks 
     }
     catch(err){
         res.status(401).send("Error: "+ err.message)

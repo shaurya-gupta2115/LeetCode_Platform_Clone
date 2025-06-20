@@ -4,9 +4,8 @@ require('dotenv').config();
 const main =  require('./config/db')
 const cookieParser =  require('cookie-parser');
 
-
-app.use(express.json());
-app.use(cookieParser());
+app.use(express.json()); // express.json 
+app.use(cookieParser()); // cookie
 
 //redisClient
 const redisClient = require('./config/redis');
@@ -20,7 +19,7 @@ app.use('/user',authRouter);
 app.use('/problem',problemRouter);
 app.use('/submission',submitRouter);
 
-
+// Connection Initialisatin with DB and Redis
 const InitalizeConnection = async ()=>{
     try{
         await Promise.all([main(),redisClient.connect()]); // main and redisClient function will run together in sequence 
