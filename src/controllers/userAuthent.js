@@ -4,6 +4,7 @@ const validate = require("../utils/validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const Submission = require("../models/submission");
+const filteredUser = require("../utils/filterUser")
 
 const userInfo = async (req, res) => {
   try {
@@ -16,7 +17,7 @@ const userInfo = async (req, res) => {
 
     if (!user) return res.status(404).send("User Not Found");
 
-    res.status(200).json(user); // ✅ Properly send user info back to frontend
+    res.status(200).json({user}); // ✅ Properly send user info back to frontend
   } catch (error) {
     res.status(500).send("Internal Server Error");
   }
@@ -33,6 +34,7 @@ const register = async (req, res) => {
 
     const user = await User.create(req.body);
 
+    const safeUser = await filteredUser(user) // this data should be send to the frontent as reply information 
     //register krne ke time pe token generate karna hai
     // and that token is to be placed in the cookie for futher availability
     const token = jwt.sign(
@@ -41,8 +43,7 @@ const register = async (req, res) => {
       { expiresIn: 60 * 60 }
     );
     res.cookie("token", token, { maxAge: 60 * 60 * 1000 });
-
-    res.status(201).send("User Registered Successfully");
+    res.status(201).json({user: safeUser, registration: "successful"});
   } catch (err) {
     res.status(400).send("Error: " + err);
   }
@@ -68,9 +69,11 @@ const login = async (req, res) => {
       { expiresIn: 60 * 60 }
     );
 
+    const safeUser = await filteredUser(user); 
+
     res.cookie("token", token, { maxAge: 60 * 60 * 1000 }); //cookies ki place se bhi to token hatana tha after certain time
 
-    res.status(200).send("Logged In Succeessfully");
+    res.status(200).json({user: safeUser, login: "successful"});
   } catch (err) {
     res.status(401).send("Error: " + err);
   }
