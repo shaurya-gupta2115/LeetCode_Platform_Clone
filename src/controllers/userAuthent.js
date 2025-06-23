@@ -69,7 +69,7 @@ const login = async (req, res) => {
       { expiresIn: 60 * 60 }
     );
 
-    const safeUser = await filteredUser(user); 
+    const safeUser = await filteredUser(user); //filterUser is utilfunction that takes user and delete values like password and all and only send the value which can be transferred to frontend
 
     res.cookie("token", token, { maxAge: 60 * 60 * 1000 }); //cookies ki place se bhi to token hatana tha after certain time
 

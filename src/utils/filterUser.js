@@ -1,5 +1,5 @@
 // utils/filterUser.js
 module.exports = (user) => {
-  const { password, ...filteredUser } = user.toObject();
+  const { password,problemSolved, ...filteredUser } = user.toObject();
   return filteredUser;
 };
