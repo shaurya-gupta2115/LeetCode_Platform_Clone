@@ -3,8 +3,8 @@ const axios = require("axios");
 const getLanguageById = (lang) => {
   const language = {
     "c++": 54,
-    java: 62,
-    javascript: 63,
+    "java": 62,
+    "javascript": 63,
   };
 
   return language[lang.toLowerCase()]; // language id for judge0 api return krdega

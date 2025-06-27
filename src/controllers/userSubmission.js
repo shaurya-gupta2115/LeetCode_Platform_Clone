@@ -10,10 +10,15 @@ const submitCode = async (req,res)=>{
        const userId = req.result._id;
        const problemId = req.params.id;
 
-       const {code,language} = req.body;
+       let {code,language} = req.body;
 
       if(!userId||!code||!problemId||!language)
         return res.status(400).send("Some field missing");
+
+
+      if (language === "cpp") language = "c++";
+      console.log(language);
+
 
     //    Fetch the problem from database
        const problem =  await Problem.findById(problemId);
@@ -29,7 +34,7 @@ const submitCode = async (req,res)=>{
           testCasesTotal:problem.hiddenTestCases.length
         })
 
-    //    Judge0 code ko submit karna hai
+    //    JUDGE0 CODE SUBMISSION STARTS FROM HERE 
 
     const languageId = getLanguageById(language);
 
@@ -92,7 +97,14 @@ const submitCode = async (req,res)=>{
       await req.result.save();
     }
 
-    res.status(201).send(submittedResult);
+    const accepted = status == "accepted";
+    res.status(201).json({
+      accepted,
+      totalTestCases: submittedResult.testCasesTotal,
+      passedTestCases: testCasesPassed,
+      runtime,
+      memory,
+    });
        
     }
     catch(err){
@@ -109,10 +121,13 @@ const runCode = async(req,res)=>{
       const userId = req.result._id;
       const problemId = req.params.id;
 
-      const {code,language} = req.body;
+      let {code,language} = req.body;
 
      if(!userId||!code||!problemId||!language)
        return res.status(400).send("Some field missing");
+
+
+     if (language === "cpp") language = "c++";
 
    //    Fetch the problem from database
       const problem =  await Problem.findById(problemId);
@@ -135,11 +150,44 @@ const runCode = async(req,res)=>{
 
    const testResult = await submitToken(resultToken);
   
-   //here we are cleaning the returned output 
-   const cleanedResult = testResult.map(({post_execution_filesystem,...rest}) => rest);
+   let testCasesPassed = 0;
+   let runtime = 0;
+   let memory = 0;
+   let status = true;
+   let errorMessage = null;
 
-  // res.status(201).send(testResult);
-  res.status(201).send(cleanedResult);
+
+   for (const test of testResult) {
+     if (test.status_id == 3) {
+       testCasesPassed++;
+       runtime = runtime + parseFloat(test.time);
+       memory = Math.max(memory, test.memory);
+     } else {
+       if (test.status_id == 4) {
+         status = false;
+         errorMessage = test.stderr;
+       } else {
+         status = false;
+         errorMessage = test.stderr;
+       }
+     }
+   }
+
+
+   res.status(201).json({
+     success: status,
+     testCases: testResult,
+     runtime,
+     memory,
+   });
+      
+
+  //  //here we are cleaning the returned output 
+  //  const cleanedResult = testResult.map(({post_execution_filesystem,...rest}) => rest);
+
+  // // res.status(201).send(testResult);
+  // res.status(201).send(cleanedResult);
+
       
    }
    catch(err){

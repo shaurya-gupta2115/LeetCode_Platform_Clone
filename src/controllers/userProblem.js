@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 app.use(express.json());
+const SolutionVideo = require("../models/solutionVideo");
 
 const {
   getLanguageById,
@@ -158,12 +159,44 @@ const getProblemById = async (req, res) => {
     if (!id) return res.status(400).send("ID is Missing");
 
     const getProblem = await Problem.findById(id).select(
-      "_id title description difficulty tags visibleTestCases startCodae"
+      "_id title description difficulty tags visibleTestCases startCode referenceSolution"
     );
 
     if (!getProblem) return res.status(404).send("Problem is Missing");
 
-    res.status(200).send(getProblem);
+    // video ka jo bhi url wagera le aao
+
+    if (!getProblem) return res.status(404).send("Problem is Missing");
+
+    const videos = await SolutionVideo.findOne({ problemId: id });
+
+    // if (videos) {
+    //   getProblem.secureUrl = videos.secureUrl;
+    //   getProblem.cloudinaryPublicId = videos.cloudinaryPublicId;
+    //   getProblem.thumbnailUrl = videos.thumbnailUrl;
+    //   getProblem.duration = videos.duration;
+
+    //   return res.status(200).send(getProblem);
+    // }
+
+
+    //debugging done here...since there was problem with the Model ...we havent created secureUrl,cloudinary etc things as attributes of the problems so for that if we give attributes to them then they are not goind to show up in the database and hence they will be undefined when we do fetch the attibutes via props drillings
+    // to isko humne debug kiya getproblem ko ek object me create krke and uske sath baaki attributes like secureUrl , thumbnailUrl, duration wagairah sb kuchhh set krdiya and send kiya responseData ki trh ...
+
+    // yaad rakhne wali baat ye hai ki jo bhi hum send kr rhe hai responseData usme videos ke hone pr hai lekin hume tb ka bhi sochkr chlna hai agar video na hua to ...us case me bhi hume return krna pdega ...bs getProblemById krke hi bhale ..
+    
+    if (videos) {
+      const responseData = {
+        ...getProblem.toObject(),
+        secureUrl: videos.secureUrl,
+        thumbnailUrl: videos.thumbnailUrl,
+        duration: videos.duration,
+      };
+
+      return res.status(200).send(responseData);
+    }
+
+    return res.status(200).send(getProblem);
   } catch (err) {
     res.status(500).send("Error: " + err);
   }
@@ -178,20 +211,18 @@ const getAllProblem = async (req, res) => {
     if (getProblem.length == 0)
       return res.status(404).send("Problems are Missing");
 
-    res.status(200 ).send(getProblem);
+    res.status(200).send(getProblem);
   } catch (err) {
     res.status(500).send("Error: " + err);
   }
 };
 
-//Pagination implementation concept 
+//Pagination implementation concept
 
 // const page = 2;
 // const limit = 10;
-// const skip = (page - 1)*limit;   skip -> initial se kitni values hatanihai 
+// const skip = (page - 1)*limit;   skip -> initial se kitni values hatanihai
 // Problem.find().skip(skip).limit(limit)
-
-
 
 const solvedAllProblembyUser = async (req, res) => {
   try {
@@ -215,7 +246,8 @@ const submittedProblem = async (req, res) => {
 
     const ans = await Submission.find({ userId, problemId });
 
-    if (ans.length == 0) res.status(200).send("No Submission is made for this problem");
+    if (ans.length == 0)
+      res.status(200).send("No Submission is made for this problem");
 
     res.status(200).send(ans);
   } catch (err) {

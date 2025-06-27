@@ -28,7 +28,7 @@ problemRouter.get(
   userMiddleware,
   solvedAllProblembyUser
 ); 
-problemRouter.post("/submittedProblem/:pid", userMiddleware, submittedProblem);
+problemRouter.get("/submittedProblem/:pid", userMiddleware, submittedProblem);
 
 module.exports = problemRouter;
 
